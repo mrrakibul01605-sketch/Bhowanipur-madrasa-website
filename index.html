@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>মাদ্রাসা তথ্য কেন্দ্র</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Amiri:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-deep:#0F3D2E;
+    --green-mid:#1D5C46;
+    --gold:#C9A227;
+    --cream:#FAF6ED;
+    --ink:#123324;
+    --ink-soft:#4B6355;
+    --card:#FFFFFF;
+    --danger:#B3413A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--cream); color:var(--ink);
+    font-family:'Hind Siliguri', sans-serif;
+    padding-bottom:82px;
+  }
+  a{color:inherit;}
+
+  /* ---- Header ---- */
+  header{
+    background:
+      radial-gradient(circle at 90% -10%, rgba(201,162,39,0.35), transparent 55%),
+      linear-gradient(160deg, var(--green-deep), var(--green-mid));
+    color:var(--cream);
+    padding:26px 20px 22px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute; left:0; right:0; bottom:0; height:14px;
+    background-image: repeating-linear-gradient(135deg, var(--gold) 0 10px, transparent 10px 20px);
+    opacity:0.55;
+  }
+  .h-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .h-name{
+    font-weight:700; font-size:22px; line-height:1.3;
+    outline:none;
+  }
+  .h-tagline{
+    font-family:'Amiri', serif; font-size:13px; color:var(--gold);
+    margin-top:4px; letter-spacing:0.02em;
+  }
+  .lock-btn{
+    background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25);
+    color:var(--cream); border-radius:999px; padding:7px 14px; font-size:13px;
+    font-family:inherit; cursor:pointer; white-space:nowrap;
+  }
+  .lock-btn.on{ background:var(--gold); color:var(--green-deep); border-color:var(--gold); font-weight:700;}
+
+  /* ---- Sections ---- */
+  main{ padding:18px 16px 8px; max-width:640px; margin:0 auto;}
+  .section{ display:none; }
+  .section.active{ display:block; }
+
+  .s-title{
+    font-size:19px; font-weight:700; color:var(--green-deep);
+    margin:6px 2px 14px; display:flex; align-items:center; gap:8px;
+  }
+  .s-title::before{
+    content:""; width:5px; height:20px; background:var(--gold); border-radius:3px; display:inline-block;
+  }
+
+  .card{
+    background:var(--card); border-radius:14px; padding:16px 18px;
+    box-shadow:0 6px 18px -10px rgba(15,61,46,0.25);
+    margin-bottom:12px; border:1px solid rgba(15,61,46,0.06);
+  }
+  .card .title{ font-weight:700; font-size:16px; color:var(--ink);}
+  .card .meta{ font-size:12.5px; color:var(--gold); font-weight:600; margin-top:2px;}
+  .card .body{ font-size:14px; color:var(--ink-soft); margin-top:8px; line-height:1.6; white-space:pre-wrap;}
+
+  .editable{
+    outline:none; border-radius:8px;
+  }
+  [contenteditable="true"].editable{
+    background:#FFFDF4; box-shadow:0 0 0 2px var(--gold) inset;
+    padding:4px 6px;
+  }
+
+  .field-row{ display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;}
+  .field-row .editable{ flex:1; min-width:110px;}
+
+  .add-btn{
+    width:100%; padding:12px; border-radius:12px; border:2px dashed rgba(15,61,46,0.3);
+    background:transparent; color:var(--green-mid); font-family:inherit; font-weight:600;
+    font-size:14px; cursor:pointer; margin-top:6px;
+  }
+  .del-btn{
+    background:none; border:none; color:var(--danger); font-size:12.5px; cursor:pointer;
+    font-family:inherit; margin-top:8px; padding:0;
+  }
+  .empty-msg{ text-align:center; color:var(--ink-soft); font-size:14px; padding:30px 10px;}
+
+  .attach-preview{ margin-top:10px; }
+  .attach-preview img{ max-width:100%; border-radius:10px; display:block; }
+  .attach-pdf-chip{
+    display:flex; align-items:center; gap:8px; background:rgba(15,61,46,0.06);
+    padding:10px 12px; border-radius:10px; font-size:13.5px; color:var(--green-deep); font-weight:600;
+    text-decoration:none; margin-top:10px; word-break:break-word;
+  }
+  .file-label{
+    display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--green-mid);
+    border:1px solid rgba(15,61,46,0.25); padding:7px 12px; border-radius:999px; cursor:pointer; margin-top:10px;
+  }
+  .file-label input{ display:none; }
+
+  .info-block{ margin-bottom:16px; }
+  .label{ font-size:12.5px; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:0.04em;}
+  .info-block .label{ margin-bottom:6px; }
+
+  .staff-top{ display:flex; align-items:center; gap:12px; }
+  .avatar-circle{
+    width:52px; height:52px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg, var(--green-mid), var(--gold));
+    display:flex; align-items:center; justify-content:center;
+    color:var(--cream); font-weight:700; font-size:19px; overflow:hidden;
+  }
+  .avatar-circle img{ width:100%; height:100%; object-fit:cover; }
+  .avatar-upload-label{
+    display:inline-flex; align-items:center; gap:5px; font-size:12px; color:var(--green-mid);
+    border:1px solid rgba(15,61,46,0.25); padding:5px 10px; border-radius:999px; cursor:pointer; margin-top:8px;
+  }
+  .avatar-upload-label input{ display:none; }
+
+  .sub-s-title{
+    font-size:15px; font-weight:700; color:var(--green-deep);
+    margin:26px 2px 10px;
+  }
+  .student-row{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    padding:12px 14px; background:var(--card); border-radius:12px; margin-bottom:8px;
+    border:1px solid rgba(15,61,46,0.06); font-size:13.5px;
+  }
+  .student-row .info{ line-height:1.6; }
+  .student-row .info b{ font-size:14.5px; }
+  .profile-btn{
+    width:100%; padding:13px; border-radius:12px; border:none;
+    background:var(--green-deep); color:var(--cream); font-family:inherit; font-weight:700;
+    font-size:14.5px; cursor:pointer; margin-top:22px;
+  }
+
+  .cover-banner{
+    width:100%; aspect-ratio:16/9; border-radius:14px; overflow:hidden; margin-bottom:14px;
+    background:linear-gradient(135deg, rgba(15,61,46,0.08), rgba(201,162,39,0.14));
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .cover-banner img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .cover-placeholder{ color:var(--ink-soft); font-size:13.5px; text-align:center; padding:20px; }
+  .cover-controls{ display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+
+  /* ---- Bottom nav ---- */
+  nav{
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--card); border-top:1px solid rgba(15,61,46,0.1);
+    display:flex; z-index:10;
+    box-shadow:0 -6px 18px -12px rgba(15,61,46,0.3);
+  }
+  nav button{
+    flex:1; background:none; border:none; padding:9px 2px 10px;
+    font-family:inherit; font-size:11.5px; color:var(--ink-soft);
+    display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer;
+  }
+  nav button svg{ width:20px; height:20px; }
+  nav button.active{ color:var(--green-deep); font-weight:700; }
+  nav button.active svg{ stroke:var(--green-deep); }
+
+  .loading{ text-align:center; padding:40px; color:var(--ink-soft); }
+  .save-toast{
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--green-deep); color:var(--cream); padding:9px 18px; border-radius:999px;
+    font-size:13px; opacity:0; transition:all .25s; pointer-events:none; z-index:20;
+  }
+  .save-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-top">
+    <div>
+      <div class="h-name editable" contenteditable="false" id="madrasaName">Bhowanipur Islamia Khamil Madrasah</div>
+      <div class="h-tagline">সকল তথ্য, এক জায়গায়</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="lock-btn" id="changePinBtn" style="display:none;">🔑 পিন বদলান</button>
+      <button class="lock-btn" id="lockBtn">🔒 এডিট</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="loading">লোড হচ্ছে…</div>
+</main>
+
+<div class="save-toast" id="toast">সংরক্ষিত হয়েছে</div>
+
+<nav id="nav"></nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* =====================================================================
+   ফায়ারবেস সেটআপ — নিচের মানগুলো তোমার নিজের Firebase প্রজেক্ট থেকে
+   কপি করে বসাও (Firebase Console > Project settings > General > Your apps)
+   ===================================================================== */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+/* ===================================================================== */
+
+let editMode = false;
+const PIN_KEY = 'madrasa:pin';
+let currentPin = '2026';
+
+const TABS = [
+  {id:'about', label:'পরিচিতি', icon:'M3 12l9-9 9 9M5 10v10h14V10'},
+  {id:'people', label:'শিক্ষক-ছাত্র', icon:'M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75'},
+  {id:'routine', label:'রুটিন', icon:'M3 7h18M3 12h18M3 17h18'},
+  {id:'notice', label:'নোটিশ', icon:'M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0'},
+  {id:'fees', label:'ফি/অনুদান', icon:'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6'}
+];
+
+let DATA = null;
+
+function iconSvg(path){
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${path.split('|').map(d=>`<path d="${d}"/>`).join('')}</svg>`;
+}
+
+async function loadAll(){
+  const defaults = {
+    name: 'Bhowanipur Islamia Khamil Madrasah',
+    about: { description: 'এখানে মাদ্রাসার সংক্ষিপ্ত পরিচিতি লিখুন — কবে প্রতিষ্ঠিত হয়েছে, কী কী বিভাগ আছে ইত্যাদি।', history: 'এখানে মাদ্রাসার ইতিহাস বিস্তারিতভাবে লিখুন।' },
+    staff: [],
+    routine: [],
+    notices: [],
+    fees: [],
+    studentProfiles: [],
+    coverPhoto: null
+  };
+  try{
+    const [n, a, st, ro, no, fe, sp, cp] = await Promise.all([
+      safeGet('madrasa:name'), safeGet('madrasa:about'), safeGet('madrasa:staff'),
+      safeGet('madrasa:routine'), safeGet('madrasa:notices'), safeGet('madrasa:fees'),
+      safeGet('madrasa:studentProfiles'), safeGet('madrasa:coverPhoto')
+    ]);
+    DATA = {
+      name: n ? JSON.parse(n.value) : defaults.name,
+      about: a ? JSON.parse(a.value) : defaults.about,
+      staff: st ? JSON.parse(st.value) : defaults.staff,
+      routine: ro ? JSON.parse(ro.value) : defaults.routine,
+      notices: no ? JSON.parse(no.value) : defaults.notices,
+      fees: fe ? JSON.parse(fe.value) : defaults.fees,
+      studentProfiles: sp ? JSON.parse(sp.value) : defaults.studentProfiles,
+      coverPhoto: cp ? JSON.parse(cp.value) : defaults.coverPhoto
+    };
+  }catch(e){
+    console.error('load error', e);
+    DATA = defaults;
+  }
+  document.getElementById('madrasaName').textContent = DATA.name;
+}
+
+async function safeGet(key){
+  try{
+    const snap = await db.collection('madrasa').doc(key).get();
+    return snap.exists ? { key, value: snap.data().value } : null;
+  }catch(e){ console.error('get failed', key, e); return null; }
+}
+async function safeGetPersonal(key){
+  try{
+    const v = localStorage.getItem(key);
+    return v !== null ? { key, value: v } : null;
+  }catch(e){ return null; }
+}
+async function savePersonal(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){ console.error('personal save failed', key, e); }
+}
+async function saveKey(key, value){
+  try{
+    await db.collection('madrasa').doc(key).set({ value: JSON.stringify(value) });
+    showToast();
+  }catch(e){
+    console.error('save failed', key, e);
+    showToast('সংরক্ষণ ব্যর্থ হয়েছে — ইন্টারনেট সংযোগ বা Firebase সেটআপ পরীক্ষা করো');
+  }
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg || 'সংরক্ষিত হয়েছে';
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(()=>{ t.classList.remove('show'); t.textContent = 'সংরক্ষিত হয়েছে'; }, msg ? 2200 : 1200);
+}
+
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+function attachmentHTML(item){
+  if(!item.fileData) return '';
+  if(item.fileType === 'pdf'){
+    return `<a class="attach-pdf-chip" href="${item.fileData}" target="_blank" rel="noopener">📄 ${escapeHtml(item.fileName||'ফাইল')} দেখুন</a>`;
+  }
+  return `<div class="attach-preview"><img src="${item.fileData}" alt="${escapeHtml(item.fileName||'')}"></div>`;
+}
+function fileControlHTML(item){
+  if(!editMode) return '';
+  const removeBtn = item.fileData ? `<button class="del-btn" data-remove-file="1" style="margin-left:14px;">ফাইল সরান</button>` : '';
+  return `<div><label class="file-label">📎 ছবি/পিডিএফ যুক্ত করুন<input type="file" accept="image/*,application/pdf" data-file-input="1"></label>${removeBtn}</div>`;
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function bindFileUpload(main, key){
+  main.querySelectorAll('.card').forEach(card=>{
+    const id = card.dataset.id;
+    const input = card.querySelector('[data-file-input]');
+    if(input){
+      input.addEventListener('change', (e)=>{
+        const file = e.target.files[0];
+        if(!file) return;
+        if(file.size > 0.6*1024*1024){
+          showToast('ফাইলটি ৬০০ কেবি\'র বেশি বড়, ছোট ফাইল ব্যবহার করুন');
+          input.value = '';
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = async ()=>{
+          const item = DATA[key].find(x=>x.id===id);
+          if(!item) return;
+          item.fileData = reader.result;
+          item.fileName = file.name;
+          item.fileType = file.type === 'application/pdf' ? 'pdf' : 'image';
+          await saveKey('madrasa:'+key, DATA[key]);
+          renderMain();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    const removeBtn = card.querySelector('[data-remove-file]');
+    if(removeBtn){
+      removeBtn.addEventListener('click', async ()=>{
+        const item = DATA[key].find(x=>x.id===id);
+        if(!item) return;
+        delete item.fileData; delete item.fileName; delete item.fileType;
+        await saveKey('madrasa:'+key, DATA[key]);
+        renderMain();
+      });
+    }
+  });
+}
+
+/* ---------- render ---------- */
+let activeTab = 'about';
+
+function renderNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML = TABS.map(t => `
+    <button data-tab="${t.id}" class="${t.id===activeTab?'active':''}">
+      ${iconSvg(t.icon)}
+      <span>${t.label}</span>
+    </button>`).join('');
+  nav.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{ activeTab=b.dataset.tab; renderNav(); renderMain(); });
+  });
+}
+
+function renderMain(){
+  const main = document.getElementById('main');
+  if(activeTab==='about') return renderAbout(main);
+  if(activeTab==='people') return renderPeople(main);
+  if(activeTab==='routine') return renderRoutine(main);
+  if(activeTab==='notice') return renderNotices(main);
+  if(activeTab==='fees') return renderFees(main);
+}
+
+function ed(){ return editMode ? 'true' : 'false'; }
+function edClass(){ return editMode ? 'editable' : ''; }
+
+function renderAbout(main){
+  main.innerHTML = `
+    <div class="s-title">মাদ্রাসার পরিচিতি</div>
+    <div class="cover-banner" id="coverBanner">
+      ${DATA.coverPhoto ? `<img src="${DATA.coverPhoto}" alt="মাদ্রাসার ছবি">` : '<div class="cover-placeholder">এখনও মাদ্রাসার কোনো ছবি যুক্ত করা হয়নি</div>'}
+    </div>
+    ${editMode ? `
+      <div class="cover-controls">
+        <label class="file-label" style="margin-top:0;">📷 ${DATA.coverPhoto ? 'ছবি বদলান' : 'মাদ্রাসার ছবি যুক্ত করুন'}<input type="file" accept="image/*" id="coverInput"></label>
+        ${DATA.coverPhoto ? '<button class="del-btn" id="removeCover" style="margin-top:0;">ছবি সরান</button>' : ''}
+      </div>
+    ` : ''}
+    <div class="card">
+      <div class="info-block">
+        <div class="label">পরিচিতি</div>
+        <div class="body ${edClass()}" contenteditable="${ed()}" data-bind="about.description">${DATA.about.description}</div>
+      </div>
+      <div class="info-block" style="margin-bottom:0">
+        <div class="label">ইতিহাস</div>
+        <div class="body ${edClass()}" contenteditable="${ed()}" data-bind="about.history">${DATA.about.history}</div>
+      </div>
+    </div>
+  `;
+  bindEditableBlur(main, async (path, text)=>{
+    const [k,f] = path.split('.');
+    DATA[k][f] = text;
+    await saveKey('madrasa:about', DATA.about);
+  });
+  if(editMode){
+    const coverInput = document.getElementById('coverInput');
+    if(coverInput){
+      coverInput.addEventListener('change', (e)=>{
+        const file = e.target.files[0];
+        if(!file) return;
+        if(file.size > 0.6*1024*1024){
+          showToast('ছবিটি ৬০০ কেবি\'র বেশি বড়, ছোট সাইজের ছবি ব্যবহার করুন');
+          coverInput.value = '';
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = async ()=>{
+          DATA.coverPhoto = reader.result;
+          await saveKey('madrasa:coverPhoto', DATA.coverPhoto);
+          renderMain();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    const removeBtn = document.getElementById('removeCover');
+    if(removeBtn){
+      removeBtn.addEventListener('click', async ()=>{
+        DATA.coverPhoto = null;
+        await saveKey('madrasa:coverPhoto', DATA.coverPhoto);
+        renderMain();
+      });
+    }
+  }
+}
+
+function renderPeople(main){
+  const items = DATA.staff;
+  const students = DATA.studentProfiles;
+  main.innerHTML = `
+    <div class="s-title">শিক্ষক ও ছাত্র তালিকা</div>
+    ${items.length ? items.map(p=>staffCard(p)).join('') : (editMode?'':'<div class="empty-msg">এখনো কোনো তথ্য যোগ করা হয়নি।</div>')}
+    ${editMode ? '<button class="add-btn" id="addStaff">+ নতুন যোগ করুন</button>' : ''}
+    ${editMode ? `
+      <div class="sub-s-title">ছাত্র প্রোফাইল তালিকা (${students.length})</div>
+      ${students.length ? students.map(s=>studentRow(s)).join('') : '<div class="empty-msg">এখনো কোনো ছাত্র প্রোফাইল তৈরি করেনি।</div>'}
+    ` : `
+      <button class="profile-btn" id="openStudentProfile">🧑‍🎓 আমার প্রোফাইল তৈরি / দেখুন</button>
+    `}
+  `;
+  if(editMode){
+    document.getElementById('addStaff').addEventListener('click', async ()=>{
+      DATA.staff.push({id:uid(), name:'নাম লিখুন', designation:'পদবি (যেমন: প্রধান শিক্ষক)', subject:'বিষয় লিখুন', detail:''});
+      await saveKey('madrasa:staff', DATA.staff);
+      renderMain();
+    });
+    main.querySelectorAll('[data-del-student]').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        DATA.studentProfiles = DATA.studentProfiles.filter(x=>x.id!==btn.dataset.delStudent);
+        await saveKey('madrasa:studentProfiles', DATA.studentProfiles);
+        renderMain();
+      });
+    });
+  } else {
+    document.getElementById('openStudentProfile').addEventListener('click', async ()=>{
+      const mine = await safeGetPersonal('student:myProfile');
+      openStudentProfileModal(mine ? JSON.parse(mine.value) : null);
+    });
+  }
+  bindListEditing(main, 'staff');
+  bindPhotoUpload(main, 'staff');
+}
+function studentRow(s){
+  return `
+  <div class="student-row">
+    <div class="info">
+      <b>${escapeHtml(s.name||'')}</b> · ${escapeHtml(s.classRoll||'')}<br>
+      জন্ম তারিখ: ${escapeHtml(s.dob||'—')} · ফোন: ${escapeHtml(s.phone||'—')}
+    </div>
+    <button class="del-btn" data-del-student="${s.id}">মুছুন</button>
+  </div>`;
+}
+function staffCard(p){
+  const initial = (p.name||'?').trim().charAt(0);
+  const avatarInner = p.photo ? `<img src="${p.photo}" alt="">` : initial;
+  return `
+  <div class="card" data-id="${p.id}">
+    <div class="staff-top">
+      <div class="avatar-circle">${avatarInner}</div>
+      <div style="flex:1;">
+        <div class="title editable" contenteditable="${ed()}" data-bind="name">${p.name}</div>
+        ${editMode ? `<label class="avatar-upload-label">📷 ছবি যুক্ত করুন<input type="file" accept="image/*" data-photo-input="1"></label>` : ''}
+      </div>
+    </div>
+    <div class="field-row" style="margin-top:10px;">
+      <div style="flex:1;min-width:110px;">
+        <div class="label" style="margin-bottom:4px;">পদবি</div>
+        <div class="meta editable" contenteditable="${ed()}" data-bind="designation">${p.designation||''}</div>
+      </div>
+      <div style="flex:1;min-width:110px;">
+        <div class="label" style="margin-bottom:4px;">বিষয়</div>
+        <div class="meta editable" contenteditable="${ed()}" data-bind="subject">${p.subject||''}</div>
+      </div>
+    </div>
+    ${p.detail || editMode ? `<div class="body editable" contenteditable="${ed()}" data-bind="detail">${p.detail||''}</div>` : ''}
+    ${editMode ? '<button class="del-btn" data-del="1">মুছে ফেলুন</button>' : ''}
+  </div>`;
+}
+function bindPhotoUpload(main, key){
+  main.querySelectorAll('.card').forEach(card=>{
+    const id = card.dataset.id;
+    const input = card.querySelector('[data-photo-input]');
+    if(!input) return;
+    input.addEventListener('change', (e)=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      if(file.size > 0.6*1024*1024){
+        showToast('ছবিটি ৬০০ কেবি\'র বেশি বড়, ছোট সাইজের ছবি ব্যবহার করুন');
+        input.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = async ()=>{
+        const item = DATA[key].find(x=>x.id===id);
+        if(!item) return;
+        item.photo = reader.result;
+        await saveKey('madrasa:'+key, DATA[key]);
+        renderMain();
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+}
+
+function renderRoutine(main){
+  const items = DATA.routine;
+  main.innerHTML = `
+    <div class="s-title">ক্লাস রুটিন ও পরীক্ষার সময়সূচি</div>
+    ${items.length ? items.map(r=>routineCard(r)).join('') : (editMode?'':'<div class="empty-msg">এখনো কোনো রুটিন যোগ করা হয়নি।</div>')}
+    ${editMode ? '<button class="add-btn" id="addRoutine">+ নতুন এন্ট্রি যোগ করুন</button>' : ''}
+  `;
+  if(editMode){
+    document.getElementById('addRoutine').addEventListener('click', async ()=>{
+      DATA.routine.push({id:uid(), name:'ক্লাস/পরীক্ষার নাম', role:'দিন ও সময়', detail:'বিষয়/বিস্তারিত'});
+      await saveKey('madrasa:routine', DATA.routine);
+      renderMain();
+    });
+  }
+  bindListEditing(main, 'routine');
+}
+function routineCard(r){
+  return `
+  <div class="card" data-id="${r.id}">
+    <div class="title editable" contenteditable="${ed()}" data-bind="name">${r.name}</div>
+    <div class="meta editable" contenteditable="${ed()}" data-bind="role">${r.role}</div>
+    ${r.detail || editMode ? `<div class="body editable" contenteditable="${ed()}" data-bind="detail">${r.detail||''}</div>` : ''}
+    ${editMode ? '<button class="del-btn" data-del="1">মুছে ফেলুন</button>' : ''}
+  </div>`;
+}
+
+function renderNotices(main){
+  const items = DATA.notices;
+  main.innerHTML = `
+    <div class="s-title">নোটিশ ও সংবাদ</div>
+    ${items.length ? items.map(n=>noticeCard(n)).join('') : (editMode?'':'<div class="empty-msg">এখনো কোনো নোটিশ নেই।</div>')}
+    ${editMode ? '<button class="add-btn" id="addNotice">+ নতুন নোটিশ যোগ করুন</button>' : ''}
+  `;
+  if(editMode){
+    document.getElementById('addNotice').addEventListener('click', async ()=>{
+      DATA.notices.unshift({id:uid(), name:'নোটিশের শিরোনাম', role:'তারিখ', detail:'বিস্তারিত লিখুন'});
+      await saveKey('madrasa:notices', DATA.notices);
+      renderMain();
+    });
+  }
+  bindListEditing(main, 'notices');
+  bindFileUpload(main, 'notices');
+}
+function noticeCard(n){
+  return `
+  <div class="card" data-id="${n.id}">
+    <div class="title editable" contenteditable="${ed()}" data-bind="name">${n.name}</div>
+    <div class="meta editable" contenteditable="${ed()}" data-bind="role">${n.role}</div>
+    <div class="body editable" contenteditable="${ed()}" data-bind="detail">${n.detail||''}</div>
+    ${attachmentHTML(n)}
+    ${fileControlHTML(n)}
+    ${editMode ? '<button class="del-btn" data-del="1">মুছে ফেলুন</button>' : ''}
+  </div>`;
+}
+
+function renderFees(main){
+  const items = DATA.fees;
+  main.innerHTML = `
+    <div class="s-title">ফি ও অনুদান সংক্রান্ত তথ্য</div>
+    ${items.length ? items.map(f=>feeCard(f)).join('') : (editMode?'':'<div class="empty-msg">এখনো কোনো তথ্য যোগ করা হয়নি।</div>')}
+    ${editMode ? '<button class="add-btn" id="addFee">+ নতুন যোগ করুন</button>' : ''}
+  `;
+  if(editMode){
+    document.getElementById('addFee').addEventListener('click', async ()=>{
+      DATA.fees.push({id:uid(), name:'ফি/অনুদানের খাত', role:'পরিমাণ', detail:'বিস্তারিত বা পেমেন্ট মাধ্যম'});
+      await saveKey('madrasa:fees', DATA.fees);
+      renderMain();
+    });
+  }
+  bindListEditing(main, 'fees');
+  bindFileUpload(main, 'fees');
+}
+function feeCard(f){
+  return `
+  <div class="card" data-id="${f.id}">
+    <div class="title editable" contenteditable="${ed()}" data-bind="name">${f.name}</div>
+    <div class="meta editable" contenteditable="${ed()}" data-bind="role">${f.role}</div>
+    ${f.detail || editMode ? `<div class="body editable" contenteditable="${ed()}" data-bind="detail">${f.detail||''}</div>` : ''}
+    ${attachmentHTML(f)}
+    ${fileControlHTML(f)}
+    ${editMode ? '<button class="del-btn" data-del="1">মুছে ফেলুন</button>' : ''}
+  </div>`;
+}
+
+/* generic binding for list-based sections (staff/routine/notices/fees) */
+function bindListEditing(main, key){
+  main.querySelectorAll('.card').forEach(card=>{
+    const id = card.dataset.id;
+    card.querySelectorAll('[data-bind]').forEach(el=>{
+      el.addEventListener('blur', async ()=>{
+        const item = DATA[key].find(x=>x.id===id);
+        if(!item) return;
+        item[el.dataset.bind] = el.textContent.trim();
+        await saveKey('madrasa:'+key, DATA[key]);
+      });
+    });
+    const del = card.querySelector('[data-del]');
+    if(del){
+      del.addEventListener('click', async ()=>{
+        DATA[key] = DATA[key].filter(x=>x.id!==id);
+        await saveKey('madrasa:'+key, DATA[key]);
+        renderMain();
+      });
+    }
+  });
+}
+
+function bindEditableBlur(main, cb){
+  main.querySelectorAll('[data-bind]').forEach(el=>{
+    el.addEventListener('blur', ()=>{ cb(el.dataset.bind, el.textContent.trim()); });
+  });
+}
+
+/* ---------- edit lock ---------- */
+async function initPin(){
+  const p = await safeGet(PIN_KEY);
+  if(p) currentPin = JSON.parse(p.value);
+  else await saveKey(PIN_KEY, currentPin);
+}
+
+document.getElementById('lockBtn').addEventListener('click', async ()=>{
+  if(!editMode){
+    openPinModal();
+  } else {
+    editMode = false;
+    refreshLockBtn();
+    renderMain();
+    renderNameEditable();
+  }
+});
+
+function openPinModal(){
+  const overlay = document.createElement('div');
+  overlay.id = 'pinOverlay';
+  overlay.setAttribute('style', 'position:fixed;inset:0;background:rgba(15,61,46,0.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;');
+  overlay.innerHTML = `
+    <div style="background:#FAF6ED;border-radius:16px;padding:22px 20px;width:100%;max-width:320px;box-shadow:0 20px 50px -12px rgba(0,0,0,0.4);">
+      <div style="font-weight:700;font-size:16px;color:#0F3D2E;margin-bottom:4px;">এডিট মোডে ঢুকুন</div>
+      <div style="font-size:13px;color:#4B6355;margin-bottom:14px;">পিন লিখুন</div>
+      <input id="pinInput" type="tel" inputmode="numeric" autocomplete="off" style="width:100%;padding:11px 12px;border-radius:10px;border:1px solid rgba(15,61,46,0.25);font-size:16px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;" placeholder="পিন">
+      <div id="pinError" style="font-size:12.5px;color:#B3413A;min-height:16px;margin-bottom:6px;"></div>
+      <div style="display:flex;gap:8px;margin-top:6px;">
+        <button id="pinCancel" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(15,61,46,0.25);background:transparent;color:#4B6355;font-family:inherit;font-size:14px;">বাতিল</button>
+        <button id="pinOk" style="flex:1;padding:10px;border-radius:10px;border:none;background:#0F3D2E;color:#FAF6ED;font-family:inherit;font-weight:700;font-size:14px;">ঢুকুন</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const input = overlay.querySelector('#pinInput');
+  input.focus();
+  function close(){ overlay.remove(); }
+  function tryEnter(){
+    const val = input.value.trim();
+    if(val === currentPin){
+      editMode = true;
+      close();
+      refreshLockBtn();
+      renderMain();
+      renderNameEditable();
+    } else {
+      overlay.querySelector('#pinError').textContent = 'পিন সঠিক নয়, আবার চেষ্টা করো।';
+      input.value = '';
+      input.focus();
+    }
+  }
+  overlay.querySelector('#pinOk').addEventListener('click', tryEnter);
+  overlay.querySelector('#pinCancel').addEventListener('click', close);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) close(); });
+  input.addEventListener('keydown', (e)=>{ if(e.key==='Enter') tryEnter(); });
+}
+function refreshLockBtn(){
+  const b = document.getElementById('lockBtn');
+  b.textContent = editMode ? '🔓 শেষ করুন' : '🔒 এডিট';
+  b.classList.toggle('on', editMode);
+  document.getElementById('changePinBtn').style.display = editMode ? 'block' : 'none';
+}
+
+function openChangePinModal(){
+  const overlay = document.createElement('div');
+  overlay.setAttribute('style', 'position:fixed;inset:0;background:rgba(15,61,46,0.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;');
+  overlay.innerHTML = `
+    <div style="background:#FAF6ED;border-radius:16px;padding:22px 20px;width:100%;max-width:320px;box-shadow:0 20px 50px -12px rgba(0,0,0,0.4);">
+      <div style="font-weight:700;font-size:16px;color:#0F3D2E;margin-bottom:4px;">পিন পরিবর্তন করুন</div>
+      <div style="font-size:13px;color:#4B6355;margin-bottom:14px;">শুধু শিক্ষকদের সাথে নতুন পিনটা শেয়ার করবেন।</div>
+      <input id="newPin1" type="tel" inputmode="numeric" autocomplete="off" style="width:100%;padding:11px 12px;border-radius:10px;border:1px solid rgba(15,61,46,0.25);font-size:16px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;" placeholder="নতুন পিন">
+      <input id="newPin2" type="tel" inputmode="numeric" autocomplete="off" style="width:100%;padding:11px 12px;border-radius:10px;border:1px solid rgba(15,61,46,0.25);font-size:16px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;" placeholder="নতুন পিন আবার লিখুন">
+      <div id="pinChangeError" style="font-size:12.5px;color:#B3413A;min-height:16px;margin-bottom:6px;"></div>
+      <div style="display:flex;gap:8px;margin-top:6px;">
+        <button id="pinChangeCancel" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(15,61,46,0.25);background:transparent;color:#4B6355;font-family:inherit;font-size:14px;">বাতিল</button>
+        <button id="pinChangeOk" style="flex:1;padding:10px;border-radius:10px;border:none;background:#0F3D2E;color:#FAF6ED;font-family:inherit;font-weight:700;font-size:14px;">সংরক্ষণ করুন</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const p1 = overlay.querySelector('#newPin1');
+  const p2 = overlay.querySelector('#newPin2');
+  p1.focus();
+  function close(){ overlay.remove(); }
+  async function save(){
+    const v1 = p1.value.trim(), v2 = p2.value.trim();
+    const err = overlay.querySelector('#pinChangeError');
+    if(v1.length < 4){ err.textContent = 'পিন কমপক্ষে ৪ সংখ্যার হতে হবে।'; return; }
+    if(v1 !== v2){ err.textContent = 'দুটো পিন মিলছে না।'; return; }
+    currentPin = v1;
+    await saveKey(PIN_KEY, currentPin);
+    close();
+  }
+  overlay.querySelector('#pinChangeOk').addEventListener('click', save);
+  overlay.querySelector('#pinChangeCancel').addEventListener('click', close);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) close(); });
+}
+document.getElementById('changePinBtn').addEventListener('click', openChangePinModal);
+
+function openStudentProfileModal(existing){
+  const overlay = document.createElement('div');
+  overlay.setAttribute('style', 'position:fixed;inset:0;background:rgba(15,61,46,0.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;overflow-y:auto;');
+  const v = (s)=> existing ? escapeHtml(existing[s]||'') : '';
+  overlay.innerHTML = `
+    <div style="background:#FAF6ED;border-radius:16px;padding:22px 20px;width:100%;max-width:340px;box-shadow:0 20px 50px -12px rgba(0,0,0,0.4);">
+      <div style="font-weight:700;font-size:17px;color:#0F3D2E;margin-bottom:4px;">${existing ? 'তোমার প্রোফাইল' : 'স্বাগতম! তোমার প্রোফাইল তৈরি করো'}</div>
+      <div style="font-size:13px;color:#4B6355;margin-bottom:14px;">এই তথ্য মাদ্রাসার শিক্ষকরা দেখতে পাবেন।</div>
+      <input id="spName" type="text" style="width:100%;padding:11px 12px;border-radius:10px;border:1px solid rgba(15,61,46,0.25);font-size:15px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;" placeholder="তোমার নাম" value="${v('name')}">
+      <input id="spClassRoll" type="text" style="width:100%;padding:11px 12px;border-radius:10px;border:1px solid rgba(15,61,46,0.25);font-size:15px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;" placeholder="ক্লাস ও রোল (যেমন: দাখিল ৯ম, রোল ১২)" value="${v('classRoll')}">
+      <input id="spDob" type="date" style="width:100%;padding:11px 12px;border-radius:10px;border:1px solid rgba(15,61,46,0.25);font-size:15px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;color:#123324;" value="${v('dob')}">
+      <input id="spPhone" type="tel" inputmode="tel" style="width:100%;padding:11px 12px;border-radius:10px;border:1px solid rgba(15,61,46,0.25);font-size:15px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;" placeholder="ফোন নম্বর" value="${v('phone')}">
+      <div id="spError" style="font-size:12.5px;color:#B3413A;min-height:16px;margin-bottom:6px;"></div>
+      <div style="display:flex;gap:8px;margin-top:6px;">
+        <button id="spSkip" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(15,61,46,0.25);background:transparent;color:#4B6355;font-family:inherit;font-size:14px;">${existing ? 'বন্ধ করুন' : 'এখন না'}</button>
+        <button id="spSave" style="flex:1;padding:10px;border-radius:10px;border:none;background:#0F3D2E;color:#FAF6ED;font-family:inherit;font-weight:700;font-size:14px;">সংরক্ষণ করুন</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#spName').focus();
+  function close(){ overlay.remove(); }
+  overlay.querySelector('#spSkip').addEventListener('click', async ()=>{
+    await savePersonal('student:profileSeen', true);
+    close();
+  });
+  overlay.querySelector('#spSave').addEventListener('click', async ()=>{
+    const name = overlay.querySelector('#spName').value.trim();
+    const classRoll = overlay.querySelector('#spClassRoll').value.trim();
+    const dob = overlay.querySelector('#spDob').value.trim();
+    const phone = overlay.querySelector('#spPhone').value.trim();
+    if(!name){
+      overlay.querySelector('#spError').textContent = 'নাম লেখা আবশ্যক।';
+      return;
+    }
+    const profile = { id: existing ? existing.id : uid(), name, classRoll, dob, phone };
+    const idx = DATA.studentProfiles.findIndex(x=>x.id===profile.id);
+    if(idx>=0) DATA.studentProfiles[idx] = profile; else DATA.studentProfiles.push(profile);
+    await saveKey('madrasa:studentProfiles', DATA.studentProfiles);
+    await savePersonal('student:myProfile', profile);
+    await savePersonal('student:profileSeen', true);
+    close();
+    showToast('প্রোফাইল সংরক্ষিত হয়েছে');
+  });
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) close(); });
+}
+
+async function maybeShowWelcomeProfile(){
+  if(editMode) return;
+  const seen = await safeGetPersonal('student:profileSeen');
+  if(!seen){
+    setTimeout(()=> openStudentProfileModal(null), 700);
+  }
+}
+function renderNameEditable(){
+  const el = document.getElementById('madrasaName');
+  el.contentEditable = editMode ? 'true' : 'false';
+  el.classList.toggle('editable', editMode);
+  el.onblur = async ()=>{
+    if(!editMode) return;
+    DATA.name = el.textContent.trim() || 'মাদ্রাসার নাম';
+    await saveKey('madrasa:name', DATA.name);
+  };
+}
+
+(async function init(){
+  await loadAll();
+  await initPin();
+  renderNav();
+  renderMain();
+  renderNameEditable();
+  maybeShowWelcomeProfile();
+})();
+</script>
+
+</body>
+</html>
