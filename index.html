@@ -842,11 +842,15 @@ function renderNameEditable(){
     await saveKey('madrasa:name', DATA.name);
   };
 }
-
-(async function init(){
-  await loadAll();
-  await initPin();
-  renderNav();
-  renderMain();
-  renderNameEditable();
-  maybeShowWelcomeProfile();
+window.addEventListener('DOMContentLoaded', async () => {
+  try {
+    await loadAll();
+    await initPin();
+    renderNav();
+    renderMain();
+    renderNameEditable();
+    maybeShowWelcomeProfile();
+  } catch (error) {
+    console.error("Data loading error:", error);
+  }
+});
