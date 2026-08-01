@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
+  <!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCHe69SjeXtPZ4eCQ318eg8pnURue2tv1M",
+    authDomain: "bhowanipur-madrasah.firebaseapp.com",
+    projectId: "bhowanipur-madrasah",
+    storageBucket: "bhowanipur-madrasah.firebasestorage.app",
+    messagingSenderId: "692498223946",
+    appId: "1:692498223946:web:53c2d269b8a82a338d67b3",
+    measurementId: "G-Y87ND2X359"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>মাদ্রাসা তথ্য কেন্দ্র</title>
@@ -832,8 +850,3 @@ function renderNameEditable(){
   renderMain();
   renderNameEditable();
   maybeShowWelcomeProfile();
-})();
-</script>
-
-</body>
-</html>
